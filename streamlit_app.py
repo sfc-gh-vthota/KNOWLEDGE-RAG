@@ -11,7 +11,6 @@ import json
 import time
 from snowflake.snowpark.context import get_active_session
 from snowflake.core import Root
-from snowflake.cortex import Complete
 
 # --- Page Config ---
 st.set_page_config(page_title="Knowledge Base Search", page_icon="📚", layout="wide")
@@ -63,10 +62,10 @@ def search_documents(query: str, limit: int = 3) -> list:
 
 
 def generate_answer(query: str, context_docs: list) -> str:
-    """Use Cortex COMPLETE to generate an answer grounded in retrieved documents."""
+    """Use Cortex COMPLETE via SQL to generate an answer grounded in retrieved documents."""
     
     context = "\n\n---\n\n".join([
-        f"**Document: {doc.get('title', 'Unknown')}**\n{doc.get('content', '')}" 
+        f"Document: {doc.get('title', 'Unknown')}\n{doc.get('content', '')}" 
         for doc in context_docs
     ])
     
@@ -83,8 +82,14 @@ User Question: {query}
 
 Answer:"""
     
-    answer = Complete(LLM_MODEL, prompt, session=session)
-    return answer
+    # Escape single quotes for SQL
+    escaped_prompt = prompt.replace("'", "''")
+    
+    result = session.sql(
+        f"SELECT SNOWFLAKE.CORTEX.COMPLETE('{LLM_MODEL}', '{escaped_prompt}') AS answer"
+    ).collect()
+    
+    return result[0]['ANSWER'] if result else "Unable to generate answer."
 
 
 # --- UI ---
