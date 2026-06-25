@@ -100,7 +100,8 @@ st.info("🚀 **Powered by Cortex Search Python API** — Semantic retrieval + L
 # Search input
 query = st.text_input(
     "What would you like to know?",
-    placeholder="e.g., How do I request production database access?"
+    placeholder="e.g., How do I request production database access?",
+    key="query"
 )
 
 # Settings in sidebar
