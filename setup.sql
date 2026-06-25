@@ -69,15 +69,22 @@ CREATE OR REPLACE TABLE DOCUMENTS (
 -- STEP 4: Load markdown content from stage into table
 -- ============================================================
 
--- Read files from stage and insert into DOCUMENTS table
+-- File format to read entire .md file as a single text value
+CREATE OR REPLACE FILE FORMAT MD_FORMAT
+  TYPE = 'CSV'
+  FIELD_DELIMITER = NONE
+  RECORD_DELIMITER = NONE
+  FIELD_OPTIONALLY_ENCLOSED_BY = NONE;
+
+-- Read actual file content from stage into DOCUMENTS table
 INSERT INTO DOCUMENTS (doc_id, title, content, source_file)
 SELECT
-    MD5(RELATIVE_PATH) AS doc_id,
-    REPLACE(REPLACE(RELATIVE_PATH, '.md', ''), '-', ' ') AS title,
-    TO_VARCHAR(GET_PRESIGNED_URL(@DOCS_STAGE, RELATIVE_PATH)) AS content,
-    RELATIVE_PATH AS source_file
-FROM DIRECTORY(@DOCS_STAGE)
-WHERE RELATIVE_PATH LIKE '%.md';
+    MD5(METADATA$FILENAME) AS doc_id,
+    REPLACE(REPLACE(METADATA$FILENAME, '.md', ''), '-', ' ') AS title,
+    $1 AS content,
+    METADATA$FILENAME AS source_file
+FROM @DOCS_STAGE (FILE_FORMAT => 'MD_FORMAT')
+WHERE METADATA$FILENAME LIKE '%.md';
 
 
 
