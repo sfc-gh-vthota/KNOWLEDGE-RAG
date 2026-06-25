@@ -39,7 +39,7 @@ def search_documents(query: str, limit: int = 3) -> list:
     
     search_response = cortex_search_service.search(
         query=query,
-        columns=["chunk_id", "title", "content", "source_file"],
+        columns=["title", "content", "source_file"],
         limit=limit
     )
     
@@ -182,7 +182,7 @@ if query:
                     "method": "cortex_search_service.search()",
                     "parameters": {
                         "query": query,
-                        "columns": ["chunk_id", "title", "content", "source_file"],
+                        "columns": ["title", "content", "source_file"],
                         "limit": num_results
                     },
                     "response": {
@@ -204,7 +204,7 @@ cortex_search_service = (
 
 response = cortex_search_service.search(
     query="{query}",
-    columns=["chunk_id", "title", "content", "source_file"],
+    columns=["title", "content", "source_file"],
     limit={num_results}
 )
 """, language="python")
