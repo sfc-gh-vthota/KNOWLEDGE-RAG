@@ -100,8 +100,8 @@ st.info("🚀 **Powered by Cortex Search Python API** — Semantic retrieval + L
 # Search input
 query = st.text_input(
     "What would you like to know?",
-    placeholder="e.g., How do I request production database access?",
-    key="query"
+    value=st.session_state.get("selected_example", ""),
+    placeholder="e.g., How do I request production database access?"
 )
 
 # Settings in sidebar
@@ -233,5 +233,5 @@ if not query:
     for i, example in enumerate(examples):
         col = cols[i % 2]
         if col.button(example, key=f"example_{i}"):
-            st.session_state["query"] = example
+            st.session_state["selected_example"] = example
             st.rerun()
